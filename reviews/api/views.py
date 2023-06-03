@@ -28,3 +28,7 @@ def getUserReviews(request, username):
     reviews = Review.objects.filter(user=user)
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+def createReview(request):
+    pass
