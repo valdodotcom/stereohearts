@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'accounts.apps.AccountsConfig',
     'reviews.apps.ReviewsConfig',
+    'spotify.apps.SpotifyConfig',
     'rest_framework',
 ]
 
