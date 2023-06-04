@@ -1,9 +1,10 @@
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from accounts.models import Reviewer, User
 from .serializers import ReviewerSerializer, UserSerializer
 from django.contrib.auth.hashers import make_password
+from rest_framework import status
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -12,7 +13,8 @@ def getRoutes(request):
         'GET /accounts/reviewers', 
         'GET /accounts/:username',
         'POST /accounts/register',
-        'POST /accounts/login'
+        'POST /accounts/login',
+        'POST /accounts/logout',
     ]
 
     return Response(routes) 
@@ -60,7 +62,7 @@ def register(request):
 
 
 @api_view(['POST'])
-def login(request):
+def login_user(request):
     username_or_email = request.data.get('username_or_email')
     password = request.data.get('password')
 
@@ -83,7 +85,14 @@ def login(request):
     user = authenticate(request, username=user.username, password=password)
 
     if user is not None:
+        login(request, user)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+        return Response({'detail': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid username or password'}, status=400)
+
+
+@api_view(['POST'])
+def logout_user(request):
+    logout(request)
+    return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
