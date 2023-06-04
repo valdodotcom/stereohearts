@@ -6,15 +6,15 @@ from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from requests import Request, post
+from requests import Request, post, get
 
 from spotify.util import update_or_create_user_tokens, is_spotify_authenticated
 
 load_dotenv()
 SPOTIFY_URL = environ.get('SPOTIFY_URL')
-REDIRECT_URI = environ.get('REDIRECT_URI')
-CLIENT_ID = environ.get('CLIENT_ID')
-CLIENT_SECRET = environ.get('CLIENT_SECRET')
+REDIRECT_URI = environ.get('SPOTIFY_REDIRECT_URI')
+CLIENT_ID = environ.get('SPOTIFY_CLIENT_ID')
+CLIENT_SECRET = environ.get('SPOTIFY_CLIENT_SECRET')
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -72,7 +72,7 @@ def getCallback(request):
         token_type, expires_in)
 
     # TODO: Change redirect to frontend:
-    return redirect('accounts:')
+    return redirect('accounts:all')
 
 @api_view(['GET'])
 def getIsAuthenticated(self, request):
