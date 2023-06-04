@@ -10,8 +10,9 @@ def getRoutes(request):
     routes = [
         'GET /accounts',
         'GET /accounts/reviewers', 
-        'GET /accounts/reviewers/:username',
+        'GET /accounts/:username',
         'POST /accounts/register',
+        'POST /accounts/login'
     ]
 
     return Response(routes) 

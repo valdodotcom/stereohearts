@@ -7,8 +7,8 @@ from .serializers import ReviewSerializer
 def getRoutes(request):
     routes = [
         'GET /reviews',
-        'GET /reviews/view', 
-        'GET /reviews/view/:username',
+        'GET /reviews/all', 
+        'GET /reviews/:username',
         'POST /reviews/create',
     ]
 
