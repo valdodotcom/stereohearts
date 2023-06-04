@@ -62,7 +62,7 @@ def register(request):
 
 
 @api_view(['POST'])
-def login_user(request):
+def loginUser(request):
     username_or_email = request.data.get('username_or_email')
     password = request.data.get('password')
 
@@ -93,6 +93,6 @@ def login_user(request):
 
 
 @api_view(['POST'])
-def logout_user(request):
+def logoutUser(request):
     logout(request)
     return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
