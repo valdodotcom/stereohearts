@@ -12,3 +12,15 @@
 3. environment variables are UPPER_CASE (e.g. SITE_URL, SECRET).
 4. all other variables are camel_case (e.g. display_name, username_or_email).
 
+# INSTALLATION GUIDE
+Reach out to me for the .env file and any other help setting up the project. 
+Outside of this project do the ff:
+1. Install the package virtualenv: pip install virtualenv.
+2. Create a virtual environment named 'venv' using this package.
+3. Place the venv folder in the root of the project's directory
+4. Activate the virtual environment
+5. Make sure in your VS code you are using the venv python installation.
+
+Now inside the project do the ff:
+1. Run the command: pip install -r requirements.txt
+2. At this point you should be ready to start work. "Enjoy".
