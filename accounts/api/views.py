@@ -44,21 +44,17 @@ def register(request):
     user_serializer = UserSerializer(data=user_data)
     reviewer_serializer = ReviewerSerializer(data=request.data)
 
-    if user_serializer.is_valid() and reviewer_serializer.is_valid():
-        user = user_serializer.save()
-        reviewer = reviewer_serializer.save(user=user)
+    user_serializer.is_valid(raise_exception=True)  # Validate user_serializer
+    reviewer_serializer.is_valid(raise_exception=True)  # Validate reviewer_serializer
 
-        response_data = {
-            'user': user_serializer.data,
-            'reviewer': reviewer_serializer.data
-        }
-        return Response(response_data, status=201)
+    user = user_serializer.save()
+    reviewer = reviewer_serializer.save(user=user)
 
-    errors = {}
-    errors.update(user_serializer.errors)
-    errors.update(reviewer_serializer.errors)
-
-    return Response(errors, status=400)
+    response_data = {
+        'user': user_serializer.data,
+        'reviewer': reviewer_serializer.data
+    }
+    return Response({'detail': f"User {user_data.get('username')} created successfully."}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -73,7 +69,7 @@ def loginUser(request):
         try:
             user = User.objects.get(email=username_or_email)
         except User.DoesNotExist:
-            pass
+            return Response({'error': 'Invalid username or email'}, status=400)
 
     # If not found by email, check if it's a username
     if user is None:
@@ -86,7 +82,6 @@ def loginUser(request):
 
     if user is not None:
         login(request, user)
-        serializer = UserSerializer(user)
         return Response({'detail': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid username or password'}, status=400)
