@@ -4,10 +4,10 @@
 
 {% if page == 'login' %}
 <div>
-    <form method="POST" action="">
+    <form method="POST" action="{{link}}accounts/login/">
         {% csrf_token %}
         <label for="username">Username:</label>
-        <input type="text" name="username" placeholder="Enter Username">
+        <input type="text" name="username_or_email" placeholder="Enter Username">
 
         <label for="password">Password</label>
         <input type="password" name="password" placeholder="Enter Password">
