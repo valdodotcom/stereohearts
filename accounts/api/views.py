@@ -5,6 +5,8 @@ from accounts.models import Reviewer, User
 from .serializers import ReviewerSerializer, UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
+# from django.http import HttpResponse, JsonResponse
+# from django.shortcuts import render, redirect
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -83,6 +85,12 @@ def loginUser(request):
     if user is not None:
         login(request, user)
         return Response({'detail': 'Logged in successfully!'}, status=status.HTTP_200_OK)
+        # response_data = {
+        #     'detail': 'Logged in successfully!',
+        #     'redirect_url': '/home/'  # Replace with the desired redirect URL
+        # }
+
+        # return JsonResponse(response_data, status=200)
     else:
         return Response({'error': 'Invalid username or password'}, status=400)
 
