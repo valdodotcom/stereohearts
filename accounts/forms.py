@@ -1,12 +1,7 @@
 from django.forms import ModelForm
-from .models import Reviewer, User
+from .models import User
 from django.forms import PasswordInput
 from django.contrib.auth.hashers import make_password
-
-class ReviewerForm(ModelForm):
-    class Meta:
-        model = Reviewer
-        fields = '__all__'
 
 class UserForm(ModelForm):
     class Meta:

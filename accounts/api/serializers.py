@@ -1,12 +1,5 @@
 from rest_framework.serializers import ModelSerializer, ReadOnlyField, ValidationError
-from accounts.models import Reviewer, User
-
-class ReviewerSerializer(ModelSerializer):
-    user = ReadOnlyField(source='user.username')
-
-    class Meta:
-        model = Reviewer
-        fields = ['user', 'display_name', 'bio']
+from accounts.models import User
 
 class UserSerializer(ModelSerializer):
     class Meta:

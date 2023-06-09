@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from accounts.models import Reviewer, User
-from .serializers import ReviewerSerializer, UserSerializer
+from accounts.models import User
+from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 # from django.http import HttpResponse, JsonResponse
@@ -23,16 +23,16 @@ def getRoutes(request):
 
 
 @api_view(['GET'])
-def getReviewers(request):
-    reviewers = Reviewer.objects.all()
-    serializer = ReviewerSerializer(reviewers, many=True)
+def getUsers(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
-def getReviewer(request, username):
-    reviewer = Reviewer.objects.get(user__username=username)
-    serializer = ReviewerSerializer(reviewer, many=False)
+def getUser(request, username):
+    user = User.objects.get(username=username)
+    serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 
 
@@ -44,17 +44,13 @@ def register(request):
     user_data['password'] = hashed_password
 
     user_serializer = UserSerializer(data=user_data)
-    reviewer_serializer = ReviewerSerializer(data=request.data)
 
     user_serializer.is_valid(raise_exception=True)  # Validate user_serializer
-    reviewer_serializer.is_valid(raise_exception=True)  # Validate reviewer_serializer
 
     user = user_serializer.save()
-    reviewer = reviewer_serializer.save(user=user)
 
     response_data = {
         'user': user_serializer.data,
-        'reviewer': reviewer_serializer.data
     }
     return Response({'detail': f"User {user_data.get('username')} created successfully."}, status=status.HTTP_201_CREATED)
 

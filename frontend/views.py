@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
-from accounts.forms import ReviewerForm, UserForm
-from accounts.models import Reviewer
+from accounts.forms import UserForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -32,16 +31,10 @@ def logout_user(request):
 
 def register_page(request):
     page = 'register'
+    form = UserForm
 
-    context = {'page': page}
+    context = {'page': page, 'form': form}
     return render(request, 'frontend/login_register.html', context)
-
-@login_required(login_url='login')
-def create_reviewer(request):
-    page = 'create-reviewer'
-
-    context = {'page': page}
-    return render(request, 'frontend/create_reviewer.html', context)
 
 def home(request):
     return render(request, 'frontend/home.html')
