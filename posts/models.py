@@ -11,6 +11,7 @@ class Review(models.Model):
     rating = models.IntegerField(
         # validators=[min(0), max(100)]
         )
+    title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_liked = models.BooleanField(default=False)
@@ -21,13 +22,17 @@ class Review(models.Model):
     #         raise ValidationError("A project cannot be liked and disliked at the same time.")
 
     def __str__(self):
-        return f"{self.user.username} Review"
+        return f"{self.user.username} - {self.title}"
     #     return f"{self.project.title} - {self.project.artist}: {self.user.username}"
 
-# class MusicList(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     # projects = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     body = models.TextField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     is_liked = models.BooleanField(default=False)
-#     is_disliked = models.BooleanField(default=False)
+class MusicList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # projects = models.ForeignKey(Project, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, null=True)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_liked = models.BooleanField(default=False)
+    is_disliked = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
