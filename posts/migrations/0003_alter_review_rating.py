@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('reviews', '0002_review_is_disliked_review_is_liked_and_more'),
+        ('posts', '0002_review_is_disliked_review_is_liked_and_more'),
     ]
 
     operations = [

@@ -1,15 +1,15 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from reviews.models import Review, User
+from posts.models import Review, User
 from .serializers import ReviewSerializer
 
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
-        'GET /reviews',
-        'GET /reviews/all', 
-        'GET /reviews/:username',
-        'POST /reviews/create',
+        'GET /posts',
+        'GET /posts/all', 
+        'GET /posts/:username',
+        'POST /posts/create',
     ]
 
     return Response(routes) 

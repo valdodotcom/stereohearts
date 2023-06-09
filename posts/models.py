@@ -23,3 +23,11 @@ class Review(models.Model):
     def __str__(self):
         return f"{self.user.username} Review"
     #     return f"{self.project.title} - {self.project.artist}: {self.user.username}"
+
+# class MusicList(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     # projects = models.ForeignKey(Project, on_delete=models.CASCADE)
+#     body = models.TextField()
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     is_liked = models.BooleanField(default=False)
+#     is_disliked = models.BooleanField(default=False)

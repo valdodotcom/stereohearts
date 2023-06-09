@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, ReadOnlyField
-from reviews.models import Review
+from posts.models import Review
 
 class ReviewSerializer(ModelSerializer):
     user = ReadOnlyField(source='user.username')

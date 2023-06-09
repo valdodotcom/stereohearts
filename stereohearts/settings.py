@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'accounts.apps.AccountsConfig',
-    'reviews.apps.ReviewsConfig',
+    'posts.apps.PostsConfig',
     'spotify.apps.SpotifyConfig',
     'frontend.apps.FrontendConfig',
 
