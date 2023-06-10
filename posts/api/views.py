@@ -1,7 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from posts.models import Review, MusicList, User
-from .serializers import ReviewSerializer, MusicListSerializer
+from .serializers import *
+from rest_framework import status
+
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -18,8 +20,8 @@ def getRoutes(request):
 
 @api_view(['GET'])
 def getPosts(request):
-    reviews = Review.objects.all()
-    music_lists = MusicList.objects.all()
+    reviews = Review.objects.all().order_by('-created_at')
+    music_lists = MusicList.objects.all().order_by('-created_at')
 
     review_serializer = ReviewSerializer(reviews, many=True)
     music_list_serializer = MusicListSerializer(music_lists, many=True)
@@ -50,8 +52,20 @@ def getUserPosts(request, username):
 
 @api_view(['POST'])
 def createReview(request):
-    pass
+    serializer = CreateReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        review = serializer.save()
+        return Response({'detail': f"Review {serializer.data} created successfully."}, status=status.HTTP_201_CREATED)
+    else:
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def createList(request):
-    pass
+    serializer = CreateListSerializer(data=request.data)
+    if serializer.is_valid():
+        music_list = serializer.save()
+        return Response({'detail': f"Review {serializer.data} created successfully."}, status=status.HTTP_201_CREATED)
+    else:
+        errors = serializer.errors
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
