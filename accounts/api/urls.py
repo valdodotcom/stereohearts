@@ -9,6 +9,6 @@ urlpatterns = [
     path('login/', loginUser, name='login'),
     path('logout/', logoutUser, name='logout'),
     path('users/', getUsers, name='all'),
-    path('<str:username>', getUser, name='user'),
+    path('<str:username>/', getUser, name='user'),
     
 ]
