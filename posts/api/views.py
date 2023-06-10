@@ -53,19 +53,16 @@ def getUserPosts(request, username):
 @api_view(['POST'])
 def createReview(request):
     serializer = CreateReviewSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         review = serializer.save()
-        return Response({'detail': f"Review {serializer.data} created successfully."}, status=status.HTTP_201_CREATED)
-    else:
-        errors = serializer.errors
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        title = serializer.data.get('title')
+        return Response({'detail': f"Review '{title}' created successfully."}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 def createList(request):
     serializer = CreateListSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         music_list = serializer.save()
-        return Response({'detail': f"Review {serializer.data} created successfully."}, status=status.HTTP_201_CREATED)
-    else:
-        errors = serializer.errors
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        title = serializer.data.get('title')
+        return Response({'detail': f"List '{title}' created successfully."}, status=status.HTTP_201_CREATED)
