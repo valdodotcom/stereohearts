@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from posts.models import Review, MusicList, User
+from posts.models import Review, MusicList
 from .serializers import *
-from rest_framework import status, generics
+from rest_framework.generics import ListCreateAPIView
 
 
 @api_view(['GET'])
@@ -18,7 +18,7 @@ def getRoutes(request):
     return Response(routes) 
 
 
-class ReviewView(generics.ListCreateAPIView):
+class ReviewView(ListCreateAPIView):
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
@@ -34,7 +34,7 @@ class ReviewView(generics.ListCreateAPIView):
         return super().perform_create(serializer)
 
 
-class ListView(generics.ListCreateAPIView):
+class ListView(ListCreateAPIView):
     serializer_class = ListSerializer
 
     def get_queryset(self):
