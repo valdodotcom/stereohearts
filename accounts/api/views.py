@@ -5,54 +5,40 @@ from accounts.models import User
 from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-# from django.http import HttpResponse, JsonResponse
-# from django.shortcuts import render, redirect
+from rest_framework.generics import ListCreateAPIView
 
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
-        'GET /accounts',
-        'GET /accounts/reviewers', 
-        'GET /accounts/:username',
-        'POST /accounts/register',
-        'POST /accounts/login',
-        'POST /accounts/logout',
+        'GET /accounts/',
+        'GET /accounts/users/', 
+        'GET /accounts/users/username?=:username/',
+        'POST /accounts/login/',
+        'POST /accounts/logout/',
     ]
 
     return Response(routes) 
 
 
-@api_view(['GET'])
-def getUsers(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+class UserView(ListCreateAPIView):
+    serializer_class = UserSerializer
 
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        queryset = User.objects.all().order_by('-date_joined')
 
-@api_view(['GET'])
-def getUser(request, username):
-    user = User.objects.get(username=username)
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+        if username:
+            queryset = queryset.filter(username=username)
+        return queryset
 
+    def perform_create(self, serializer):
+        data = serializer.validated_data
+        password = data.get('password')
+        hashed_password = make_password(password)
+        data['password'] = hashed_password
+        serializer.save()
 
-@api_view(['POST'])
-def register(request):
-    user_data = request.data.copy()
-    password = user_data.get('password')
-    hashed_password = make_password(password)
-    user_data['password'] = hashed_password
-
-    user_serializer = UserSerializer(data=user_data)
-
-    user_serializer.is_valid(raise_exception=True)  # Validate user_serializer
-
-    user = user_serializer.save()
-
-    response_data = {
-        'user': user_serializer.data,
-    }
-    return Response({'detail': f"User {user_data.get('username')} created successfully."}, status=status.HTTP_201_CREATED)
+        return super().perform_create(serializer)
 
 
 @api_view(['POST'])

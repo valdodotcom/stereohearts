@@ -4,11 +4,8 @@ from .views import *
 app_name = 'accounts'
 
 urlpatterns = [
-    path('', getRoutes, name=''),
-    path('register/', register, name='register'),
-    path('login/', loginUser, name='login'),
-    path('logout/', logoutUser, name='logout'),
-    path('users/', getUsers, name='all'),
-    path('<str:username>/', getUser, name='user'),
-    
+    path('', getRoutes),
+    path('users/', UserView.as_view()),
+    path('login/', loginUser),
+    path('logout/', logoutUser),
 ]
