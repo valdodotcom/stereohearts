@@ -11,10 +11,10 @@ def getRoutes(request):
     routes = [
         'GET /posts/',
         'GET /posts/reviews/',
-        'GET /posts/reviews/username?=:username',
+        'GET /posts/reviews/?username=:username',
         'GET /posts/reviews/review_id',
         'GET /posts/lists/', 
-        'GET /posts/lists/username?=:username',
+        'GET /posts/lists/?username=:username',
         'GET /posts/lists/list_id',
     ]
 
