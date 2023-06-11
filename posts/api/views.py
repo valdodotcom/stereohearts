@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from posts.models import Review, MusicList
 from .serializers import *
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 
 @api_view(['GET'])
@@ -32,6 +32,15 @@ class ReviewView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         return super().perform_create(serializer)
+    
+
+class ReviewDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(user=self.request.user)
 
 
 class ListView(ListCreateAPIView):
@@ -48,3 +57,11 @@ class ListView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         return super().perform_create(serializer)
+
+class ListDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = MusicList.objects.all()
+    serializer_class = ListSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(user=self.request.user)

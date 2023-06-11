@@ -7,6 +7,8 @@ urlpatterns = [
     path('', getRoutes, name=''),
 
     path('reviews/', ReviewView.as_view()),
+    path('reviews/<int:pk>/', ReviewDetailView.as_view()),
     path('lists/', ListView.as_view()),
+    path('lists/<int:pk>/', ListDetailView.as_view()),
     
 ]
