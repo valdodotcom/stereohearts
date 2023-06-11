@@ -19,8 +19,15 @@ def getRoutes(request):
 
 
 class ReviewView(generics.ListCreateAPIView):
-    queryset = Review.objects.all().order_by('-created_at')
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        queryset = Review.objects.all().order_by('-created_at')
+
+        if username:
+            queryset = queryset.filter(user__username=username)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -28,8 +35,15 @@ class ReviewView(generics.ListCreateAPIView):
 
 
 class ListView(generics.ListCreateAPIView):
-    queryset = MusicList.objects.all().order_by('-created_at')
     serializer_class = ListSerializer
+
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        queryset = MusicList.objects.all().order_by('-created_at')
+
+        if username:
+            queryset = queryset.filter(user__username=username)
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
