@@ -8,11 +8,11 @@ from rest_framework import status, generics
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
-        'GET /posts',
-        'GET /posts/all', 
-        'GET /posts/:username',
-        'POST /posts/create-review',
-        'POST /posts/create-list'
+        'GET /posts/',
+        'GET /posts/reviews/',
+        'GET /posts/reviews/username?=:username',
+        'GET /posts/lists/', 
+        'GET /posts/lists/username?=:username',
     ]
 
     return Response(routes) 
