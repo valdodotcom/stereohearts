@@ -6,6 +6,7 @@ from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.permissions import IsAuthenticated
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -38,12 +39,14 @@ class UserView(ListCreateAPIView):
         password = data.get('password')
         hashed_password = make_password(password)
         data['password'] = hashed_password
-        serializer.save()
+        user = serializer.save()
+        login(self.request, user)
 
         return super().perform_create(serializer)
     
 class UpdateUserView(UpdateAPIView):
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
@@ -62,6 +65,7 @@ class UpdateUserView(UpdateAPIView):
     
 class DestroyUserView(DestroyAPIView):
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
