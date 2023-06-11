@@ -5,7 +5,7 @@ from accounts.models import User
 from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, UpdateAPIView, DestroyAPIView
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -15,6 +15,8 @@ def getRoutes(request):
         'GET /accounts/users/username?=:username/',
         'POST /accounts/login/',
         'POST /accounts/logout/',
+        'POST /accounts/update/',
+        'POST /accounts/destroy/',
     ]
 
     return Response(routes) 
@@ -39,6 +41,33 @@ class UserView(ListCreateAPIView):
         serializer.save()
 
         return super().perform_create(serializer)
+    
+class UpdateUserView(UpdateAPIView):
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+    
+    def perform_update(self, serializer):
+        data = serializer.validated_data
+        password = data.get('password')
+
+        if password:
+            hashed_password = make_password(password)
+            data['password'] = hashed_password
+
+        serializer.save()
+
+        return super().perform_update(serializer)
+    
+class DestroyUserView(DestroyAPIView):
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+    
+    def perform_destroy(self, instance):
+        return super().perform_destroy(instance)
 
 
 @api_view(['POST'])
