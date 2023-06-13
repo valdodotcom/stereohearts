@@ -44,9 +44,10 @@ INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'spotify.apps.SpotifyConfig',
     'frontend.apps.FrontendConfig',
+    'projects.apps.ProjectsConfig',
 
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
