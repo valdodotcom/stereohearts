@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 from accounts.models import User
+from projects.models import Project
+
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -13,9 +15,10 @@ def validate_rating(value):
             _("%(value)s is not a valid rating. Value must range from 0 to 100"),
             params={"value": value},)
     
+
 class Review(models.Model):
-    # project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField(validators=[validate_rating])
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
@@ -29,11 +32,49 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
-    #     return f"{self.project.title} - {self.project.artist}: {self.user.username}"
+
+
+class ReviewUpvote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_upvotes')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='upvotes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.review.title}"
+
+
+class ReviewDownvote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_downvotes')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='downvotes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} dislikes {self.review.title}"
+
+
+class ReviewComment(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comments')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.review.title}"
+
+
+class ReviewFavourite(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='favourites')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_favourites')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} favourited {self.review.title}"
+
 
 class MusicList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    # projects = models.ForeignKey(Project, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='music_lists')
+    projects = models.ManyToManyField(Project, related_name='music_lists')
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -46,3 +87,41 @@ class MusicList(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
+
+
+class ListUpvote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_upvotes')
+    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='upvotes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} likes {self.music_list.title}"
+
+
+class ListDownvote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_downvotes')
+    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='downvotes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} dislikes {self.music_list.title}"
+
+
+class ListComment(models.Model):
+    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_comments')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.music_list.title}"
+
+
+class ListFavourite(models.Model):
+    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='favourites')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_favourites')
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} favourited {self.music_list.title}"

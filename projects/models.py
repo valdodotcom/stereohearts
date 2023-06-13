@@ -10,7 +10,7 @@ class Artist(models.Model):
 
 class Project(models.Model):
     title = models.CharField(max_length=100)
-    year = models.IntegerField()
+    release_date = models.DateField()
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
