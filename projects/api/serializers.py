@@ -3,6 +3,7 @@ from projects.models import Project, Artist
 
 class ProjectSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(read_only=True, view_name="projects:project-detail", lookup_field="pk")
+    artist_name = serializers.ReadOnlyField(source='artist.name')
 
     class Meta:
         model = Project
