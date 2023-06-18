@@ -22,3 +22,17 @@ class PostSerializerMixin(serializers.Serializer):
         if is_liked and is_disliked:
             raise serializers.ValidationError(f"A {self.Meta.model.__name__.lower()} cannot be liked and disliked at the same time.")
         return attrs
+    
+
+class PostViewMixin:
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        queryset = self.model.objects.all().order_by('-created_at')
+
+        if username:
+            queryset = queryset.filter(user__username=username)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)

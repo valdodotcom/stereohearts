@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from posts.models import Review, MusicList
 from .serializers import *
 from .permissions import IsPostOwnerOrReadOnly
+from .mixins import PostViewMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -21,22 +22,10 @@ def getRoutes(request):
     return Response(routes) 
 
 
-class ReviewView(ListCreateAPIView):
+class ReviewView(PostViewMixin, ListCreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        username = self.request.query_params.get('username', None)
-        queryset = Review.objects.all().order_by('-created_at')
-
-        if username:
-            queryset = queryset.filter(user__username=username)
-        return queryset
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-        return super().perform_create(serializer)
-    
+    model = Review
 
 class ReviewDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
@@ -47,18 +36,7 @@ class ReviewDetailView(RetrieveUpdateDestroyAPIView):
 class ListView(ListCreateAPIView):
     serializer_class = ListSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        username = self.request.query_params.get('username', None)
-        queryset = MusicList.objects.all().order_by('-created_at')
-
-        if username:
-            queryset = queryset.filter(user__username=username)
-        return queryset
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-        return super().perform_create(serializer)
+    model = MusicList
 
 class ListDetailView(RetrieveUpdateDestroyAPIView):
     queryset = MusicList.objects.all()
