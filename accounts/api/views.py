@@ -13,7 +13,7 @@ def getRoutes(request):
     routes = [
         'GET /accounts/',
         'GET /accounts/users/', 
-        'GET /accounts/users/?username=valdo/',
+        'GET /accounts/users/?username=username/',
         'POST /accounts/login/',
         'POST /accounts/logout/',
         'POST /accounts/update/',
