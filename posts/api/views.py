@@ -33,7 +33,7 @@ class ReviewDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsPostOwnerOrReadOnly]
 
 
-class ListView(ListCreateAPIView):
+class ListView(PostViewMixin, ListCreateAPIView):
     serializer_class = ListSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     model = MusicList
