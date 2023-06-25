@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'spotify.apps.SpotifyConfig',
     'frontend.apps.FrontendConfig',
     'projects.apps.ProjectsConfig',
+    'search.apps.SearchConfig',
 
     'rest_framework',
     'rest_framework.authtoken',
