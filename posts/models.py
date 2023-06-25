@@ -87,7 +87,9 @@ class MusicList(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
-
+    
+    def get_projects_list(self):
+        return list(self.projects.all())
 
 class ListUpvote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_upvotes')

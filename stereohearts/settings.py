@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'algoliasearch_django',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -145,4 +146,10 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 5,
+}
+
+ALGOLIA = {
+    'APPLICATION_ID': environ.get('ALGOLIA_APP_ID'),
+    'API_KEY':  environ.get('ALGOLIA_API_KEY'),
+    'INDEX_PREFIX': 'search'
 }
