@@ -15,6 +15,12 @@ def validate_rating(value):
             _("%(value)s is not a valid rating. Value must range from 0 to 100"),
             params={"value": value},)
     
+def validate_like_dislike(value):
+    if value < -1 or value > 1:
+        raise ValidationError(
+            _("%(value)s is not a valid input. Value must be -1, 0 or 1"),
+            params={"value": value},)
+    
 
 class Review(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='reviews')
@@ -23,33 +29,28 @@ class Review(models.Model):
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    is_liked = models.BooleanField(default=False)
-    is_disliked = models.BooleanField(default=False)
-
-    def clean(self):
-        if self.is_liked and self.is_disliked:
-            raise ValidationError("A project cannot be liked and disliked at the same time.")
+    like_dislike = models.IntegerField(default=0, validators=[validate_like_dislike])
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
 
 
-class ReviewUpvote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_upvotes')
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='upvotes')
+class ReviewVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_votes')
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='votes')
+    status = models.IntegerField(default=0, validators=[validate_like_dislike])
+    is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} likes {self.review.title}"
-
-
-class ReviewDownvote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_downvotes')
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='downvotes')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.username} dislikes {self.review.title}"
+        if self.status is 0:
+            return f"{self.user.username} removed vote on review '{self.review.title}'"
+        
+        if self.status is 1:
+            return f"{self.user.username} likes review '{self.review.title}'"
+        
+        if self.status is -1:
+            return f"{self.user.username} dislikes review '{self.review.title}'"
 
 
 class ReviewComment(models.Model):
@@ -59,17 +60,25 @@ class ReviewComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on {self.review.title}"
+        return f"Comment by {self.user.username} on review '{self.review.title}'"
 
 
-class ReviewFavourite(models.Model):
-    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='favourites')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_favourites')
-    body = models.TextField()
+class ReviewCommentVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comment_votes')
+    review_comment = models.ForeignKey(ReviewComment, on_delete=models.CASCADE, related_name='comment_votes')
+    status = models.IntegerField(default=0, validators=[validate_like_dislike])
+    is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} favourited {self.review.title}"
+        if self.status is 0:
+            return f"{self.user.username} removed vote on review '{self.review_comment.body}'"
+        
+        if self.status is 1:
+            return f"{self.user.username} likes review '{self.review_comment.body}'"
+        
+        if self.status is -1:
+            return f"{self.user.username} dislikes review '{self.review_comment.body}'"
 
 
 class MusicList(models.Model):
@@ -78,12 +87,7 @@ class MusicList(models.Model):
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    is_liked = models.BooleanField(default=False)
-    is_disliked = models.BooleanField(default=False)
-
-    def clean(self):
-        if self.is_liked and self.is_disliked:
-            raise ValidationError("A list cannot be liked and disliked at the same time.")
+    like_dislike = models.IntegerField(default=0, validators=[validate_like_dislike])
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
@@ -91,22 +95,23 @@ class MusicList(models.Model):
     def get_projects_list(self):
         return list(self.projects.all())
 
-class ListUpvote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_upvotes')
-    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='upvotes')
+
+class ListVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_votes')
+    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='votes')
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.IntegerField(default=0, validators=[validate_like_dislike])
+    is_fav = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} likes {self.music_list.title}"
-
-
-class ListDownvote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_downvotes')
-    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='downvotes')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user.username} dislikes {self.music_list.title}"
+        if self.status is 0:
+            return f"{self.user.username} removed vote on list '{self.music_list.title}'"
+        
+        if self.status is 1:
+            return f"{self.user.username} likes list '{self.music_list.title}'"
+        
+        if self.status is -1:
+            return f"{self.user.username} dislikes list '{self.music_list.title}'"
 
 
 class ListComment(models.Model):
@@ -116,14 +121,22 @@ class ListComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on {self.music_list.title}"
+        return f"Comment by {self.user.username} on list '{self.music_list.title}'"
+    
 
-
-class ListFavourite(models.Model):
-    music_list = models.ForeignKey(MusicList, on_delete=models.CASCADE, related_name='favourites')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_favourites')
-    body = models.TextField()
+class ListCommentVote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_comment_votes')
+    list_comment = models.ForeignKey(ListComment, on_delete=models.CASCADE, related_name='comment_votes')
+    status = models.IntegerField(default=0, validators=[validate_like_dislike])
+    is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} favourited {self.music_list.title}"
+        if self.status is 0:
+            return f"{self.user.username} removed vote on comment '{self.list_comment.body}'"
+        
+        if self.status is 1:
+            return f"{self.user.username} likes comment '{self.list_comment.body}'"
+        
+        if self.status is -1:
+            return f"{self.user.username} dislikes on comment '{self.list_comment.body}'"
