@@ -3,8 +3,9 @@ from posts.models import *
 from .mixins import PostSerializerMixin
 
 class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
     url = serializers.HyperlinkedIdentityField(view_name="posts:review-detail", lookup_field="pk")
+    vote_url = serializers.HyperlinkedIdentityField(view_name="posts:review-vote", lookup_field="pk")
+    comment_url = serializers.HyperlinkedIdentityField(view_name="posts:review-comment", lookup_field="pk")
     project_info = serializers.SerializerMethodField()
 
     def get_project_info(self, obj):
@@ -14,11 +15,34 @@ class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
         model = Review
         fields = '__all__'
 
+class ReviewVoteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    review = serializers.ReadOnlyField(source='review.title')
+
+    class Meta:
+        model = ReviewVote
+        fields = '__all__'
+
+class ReviewCommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    review = serializers.ReadOnlyField(source='review.title')
+
+    class Meta:
+        model = ReviewComment
+        fields = '__all__'
+
+class ReviewCommentVoteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = ReviewCommentVote
+        fields = '__all__'
 
 
 class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
     url = serializers.HyperlinkedIdentityField(view_name="posts:list-detail", lookup_field="pk")
+    vote_url = serializers.HyperlinkedIdentityField(view_name="posts:list-vote", lookup_field="pk")
+    comment_url = serializers.HyperlinkedIdentityField(view_name="posts:list-comment", lookup_field="pk")
     projects_info = serializers.SerializerMethodField()
 
     def get_projects_info(self, obj):
@@ -26,4 +50,27 @@ class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = MusicList
+        fields = '__all__'
+
+class ListVoteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    music_list = serializers.ReadOnlyField(source='music_list.title')
+
+    class Meta:
+        model = ListVote
+        fields = '__all__'
+
+class ListCommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    music_list = serializers.ReadOnlyField(source='music_list.title')
+
+    class Meta:
+        model = ListComment
+        fields = '__all__'
+
+class ListCommentVoteSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = ListCommentVote
         fields = '__all__'

@@ -2,15 +2,27 @@ from rest_framework import serializers
 from posts.models import *
 
 class PostSerializerMixin(serializers.Serializer):
-    upvote_count = serializers.SerializerMethodField()
-    downvote_count = serializers.SerializerMethodField()
+    user = serializers.ReadOnlyField(source='user.username')
+    upvotes = serializers.SerializerMethodField()
+    downvotes = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
     favourites_count = serializers.SerializerMethodField()
 
-    def get_upvote_count(self, obj):
-        return obj.votes.filter(status=1).count()
+    def get_upvotes(self, obj):
+        return [vote.user.username for vote in obj.votes.filter(status=1)]
 
-    def get_downvote_count(self, obj):
-        return obj.votes.filter(status=-1).count()
+    def get_downvotes(self, obj):
+        return [vote.user.username for vote in obj.votes.filter(status=-1)]
+    
+    def get_comments(self, obj):
+        return [
+            {
+                'user': comment.user.username,
+                'body': comment.body,
+                'created_at': comment.created_at
+            }
+            for comment in obj.comments.all()
+        ]
     
     def get_favourites_count(self, obj):
         return obj.votes.filter(is_fav=True).count()

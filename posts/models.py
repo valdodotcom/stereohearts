@@ -42,14 +42,17 @@ class ReviewVote(models.Model):
     is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'review')
+
     def __str__(self):
-        if self.status is 0:
+        if self.status == 0:
             return f"{self.user.username} removed vote on review '{self.review.title}'"
         
-        if self.status is 1:
+        if self.status == 1:
             return f"{self.user.username} likes review '{self.review.title}'"
         
-        if self.status is -1:
+        if self.status == -1:
             return f"{self.user.username} dislikes review '{self.review.title}'"
 
 
@@ -70,14 +73,17 @@ class ReviewCommentVote(models.Model):
     is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'review_comment')
+
     def __str__(self):
-        if self.status is 0:
+        if self.status == 0:
             return f"{self.user.username} removed vote on review '{self.review_comment.body}'"
         
-        if self.status is 1:
+        if self.status == 1:
             return f"{self.user.username} likes review '{self.review_comment.body}'"
         
-        if self.status is -1:
+        if self.status == -1:
             return f"{self.user.username} dislikes review '{self.review_comment.body}'"
 
 
@@ -103,14 +109,17 @@ class ListVote(models.Model):
     status = models.IntegerField(default=0, validators=[validate_like_dislike])
     is_fav = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('user', 'music_list')
+
     def __str__(self):
-        if self.status is 0:
+        if self.status == 0:
             return f"{self.user.username} removed vote on list '{self.music_list.title}'"
         
-        if self.status is 1:
+        if self.status == 1:
             return f"{self.user.username} likes list '{self.music_list.title}'"
         
-        if self.status is -1:
+        if self.status == -1:
             return f"{self.user.username} dislikes list '{self.music_list.title}'"
 
 
@@ -131,12 +140,15 @@ class ListCommentVote(models.Model):
     is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'list_comment')
+
     def __str__(self):
-        if self.status is 0:
+        if self.status == 0:
             return f"{self.user.username} removed vote on comment '{self.list_comment.body}'"
         
-        if self.status is 1:
+        if self.status == 1:
             return f"{self.user.username} likes comment '{self.list_comment.body}'"
         
-        if self.status is -1:
+        if self.status == -1:
             return f"{self.user.username} dislikes on comment '{self.list_comment.body}'"
