@@ -99,6 +99,10 @@ class MusicList(models.Model):
     
     def get_projects_list(self):
         return list(self.projects.all())
+    
+    def get_projects_str(self):
+        projects = self.projects.all()
+        return [str(project) for project in projects]
 
 
 class ListVote(models.Model):
