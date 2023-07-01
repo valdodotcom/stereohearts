@@ -4,6 +4,12 @@ from rest_framework.reverse import reverse
 
 class PostSerializerMixin(serializers.Serializer):
     user = serializers.ReadOnlyField(source='user.username')
+    user_url = serializers.HyperlinkedRelatedField(
+        read_only=True,
+        view_name='accounts:get-user',
+        source='user',
+        lookup_field='pk'
+    )
     upvotes = serializers.SerializerMethodField()
     downvotes = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
