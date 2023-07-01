@@ -1,14 +1,13 @@
-from rest_framework.serializers import ModelSerializer, ReadOnlyField, ValidationError
+from rest_framework.serializers import ModelSerializer, ValidationError
 from rest_framework import serializers
 from accounts.models import User
-from posts.models import Review
-from django.contrib.auth.hashers import make_password
 from rest_framework.reverse import reverse
 
 class UserSerializer(ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     reviews = serializers.SerializerMethodField()
     music_lists = serializers.SerializerMethodField()
+    activity = serializers.SerializerMethodField()
 
     def get_reviews(self, obj):
         reviews = obj.reviews.prefetch_related('project')
@@ -25,6 +24,19 @@ class UserSerializer(ModelSerializer):
                  'projects': music_list.get_projects_str(), 
                  'url': reverse('posts:list-detail', 
                                 args=[music_list.pk], request=request)} for music_list in music_lists]
+    
+    def get_activity(self, obj):
+        list_votes = list(obj.list_votes.all())
+        review_votes = list(obj.review_votes.all())  
+        review_comments = list(obj.review_comments.all())
+        list_comments = list(obj.list_comments.all())
+        # list_favs = list(obj.list_votes.filter(is_fav=True))
+        combined_votes = list_votes + review_votes + review_comments + list_comments
+        # filtered_votes = [str(vote) for vote in combined_votes if vote.status != 0]
+        filtered_votes = [str(vote) for vote in combined_votes]
+        return filtered_votes[:5]
+    
+
 
 
     def validate(self, attrs):
@@ -39,7 +51,9 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 
-                  'display_name', 'bio', 'reviews', 'music_lists']
+                  'display_name', 'bio', 'reviews', 'music_lists',
+                  'activity',
+                  ]
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'write_only': True},

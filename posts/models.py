@@ -63,7 +63,7 @@ class ReviewComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on review '{self.review.title}'"
+        return f"{self.user.username} commented '{self.body}' on review '{self.review.title}'"
 
 
 class ReviewCommentVote(models.Model):
@@ -133,7 +133,7 @@ class ListComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on list '{self.music_list.title}'"
+        return f"{self.user.username} commented '{self.body}' on list '{self.music_list.title}'"
     
 
 class ListCommentVote(models.Model):
