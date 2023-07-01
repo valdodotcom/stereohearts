@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from posts.models import Review, MusicList
 from .serializers import *
 from .permissions import IsPostOwnerOrReadOnly
-from .mixins import PostViewMixin
+from .mixins import PostViewMixin, PostVoteMixin, PostCommentMixin
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -28,30 +28,26 @@ class ReviewView(PostViewMixin, ListCreateAPIView):
     model = Review
 
 class ReviewDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsPostOwnerOrReadOnly]
+    queryset = Review.objects.all()
 
-class ReviewVoteView(CreateAPIView):
-    queryset = ReviewVote.objects.all()
+class ReviewVoteView(PostVoteMixin ,CreateAPIView):
     serializer_class = ReviewVoteSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    model = ReviewVote
 
     def perform_create(self, serializer):
-        id = self.kwargs['pk']  # Get the review ID from URL parameter
-        serializer.save(user=self.request.user, review_id=id)
-        return super().perform_create(serializer)
+        super().perform_create(serializer, 'review_id')
 
-
-class ReviewCommentView(CreateAPIView):
-    queryset = ReviewComment.objects.all()
+class ReviewCommentView(PostCommentMixin, CreateAPIView):
     serializer_class = ReviewCommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
+    model = ReviewComment
+    
     def perform_create(self, serializer):
-        id = self.kwargs['pk']
-        serializer.save(user=self.request.user, review_id=id)
-        return super().perform_create(serializer)
+        super().perform_create(serializer, 'review', Review)
+
 
 
 class ListView(PostViewMixin, ListCreateAPIView):
@@ -60,26 +56,22 @@ class ListView(PostViewMixin, ListCreateAPIView):
     model = MusicList
 
 class ListDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = MusicList.objects.all()
     serializer_class = ListSerializer
     permission_classes = [IsPostOwnerOrReadOnly]
+    queryset = MusicList.objects.all()
 
-class ListVoteView(CreateAPIView):
-    queryset = ListVote.objects.all()
+class ListVoteView(PostVoteMixin, CreateAPIView):
     serializer_class = ListVoteSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    model = ListVote
 
     def perform_create(self, serializer):
-        id = self.kwargs['pk']  # Get the list ID from URL parameter
-        obj = MusicList.objects.get(pk=id)
-        serializer.save(user=self.request.user, music_list=obj)
+        super().perform_create(serializer, 'music_list_id')
 
-class ListCommentView(CreateAPIView):
-    queryset = ListComment.objects.all()
+class ListCommentView(PostCommentMixin, CreateAPIView):
     serializer_class = ListCommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    model = ListComment
     
     def perform_create(self, serializer):
-        id = self.kwargs['pk']  # Get the list ID from URL parameter
-        obj = MusicList.objects.get(pk=id)
-        serializer.save(user=self.request.user, music_list=obj)
+        super().perform_create(serializer, 'music_list', MusicList)

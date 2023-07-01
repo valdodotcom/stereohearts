@@ -21,7 +21,7 @@ class PostSerializerMixin(serializers.Serializer):
                 'body': comment.body,
                 'created_at': comment.created_at
             }
-            for comment in obj.comments.all()
+            for comment in obj.comments.all().order_by('-created_at')
         ]
     
     def get_favourites_count(self, obj):
@@ -40,3 +40,28 @@ class PostViewMixin:
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         return super().perform_create(serializer)
+    
+
+class PostVoteMixin:
+    def get_queryset(self):
+        queryset = self.model.objects.all()
+        return queryset
+    
+    def perform_create(self, serializer, id_field):
+        id = self.kwargs['pk']
+        existing_vote = self.model.objects.filter(user=self.request.user, **{id_field: id}).first()
+        if existing_vote:
+            serializer.update(existing_vote, serializer.validated_data)
+        else:
+            serializer.save(user=self.request.user, **{id_field: id})
+
+
+class PostCommentMixin:
+    def get_queryset(self):
+        queryset = self.model.objects.all()
+        return queryset
+    
+    def perform_create(self, serializer, obj_field, parent_model):
+        id = self.kwargs['pk']
+        obj = parent_model.objects.get(pk=id)
+        serializer.save(user=self.request.user, **{obj_field: obj})
