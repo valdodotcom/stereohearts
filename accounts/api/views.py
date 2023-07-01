@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -123,3 +124,23 @@ def loginUser(request):
 def logoutUser(request):
     logout(request)
     return Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+
+
+class FollowView(viewsets.ViewSet):
+    queryset = User.objects
+
+    def follow(self, request, pk):
+        own_profile = User.objects.get(username=request.user)
+        following_profile = User.objects.get(id=pk)
+
+        # Check if already following
+        if following_profile in own_profile.following.all():
+            own_profile.following.remove(following_profile)
+            return Response({'message': 'Unfollowed'}, status=status.HTTP_200_OK)
+        else:
+            # Prevent user from following themselves
+            if own_profile != following_profile:
+                own_profile.following.add(following_profile)
+                return Response({'message': 'Followed'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'You cannot follow yourself'}, status=status.HTTP_400_BAD_REQUEST)

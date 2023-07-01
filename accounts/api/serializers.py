@@ -8,6 +8,9 @@ class UserSerializer(ModelSerializer):
     reviews = serializers.SerializerMethodField()
     music_lists = serializers.SerializerMethodField()
     activity = serializers.SerializerMethodField()
+    follow_url = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
 
     def get_reviews(self, obj):
         reviews = obj.reviews.prefetch_related('project')
@@ -36,7 +39,17 @@ class UserSerializer(ModelSerializer):
         filtered_votes = [str(vote) for vote in combined_votes]
         return filtered_votes[:5]
     
+    def get_following(self, obj):
+        following = obj.following.all()
+        return [user.username for user in following]
 
+    def get_followers(self, obj):
+        followers = obj.followers.all()
+        return [user.username for user in followers]
+    
+    def get_follow_url(self, obj):
+        request = self.context.get('request')
+        return reverse('accounts:follow', args=[obj.pk], request=request)
 
 
     def validate(self, attrs):
@@ -50,9 +63,9 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 
+        fields = ['username', 'email', 'password',
                   'display_name', 'bio', 'reviews', 'music_lists',
-                  'activity',
+                  'activity', 'following', 'followers', 'follow_url',
                   ]
         extra_kwargs = {
             'password': {'write_only': True},
