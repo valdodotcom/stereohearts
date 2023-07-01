@@ -16,18 +16,34 @@ class PostSerializerMixin(serializers.Serializer):
     favourites_count = serializers.SerializerMethodField()
 
     def get_upvotes(self, obj):
-        return [vote.user.username for vote in obj.votes.filter(status=1)]
+        request = self.context.get('request')
+        return [
+            {
+                'user': vote.user.username,
+                'user_url': reverse('accounts:get-user', kwargs={'pk': vote.user.id}, request=request),    
+            }
+                 for vote in obj.votes.filter(status=1)
+        ]
 
     def get_downvotes(self, obj):
-        return [vote.user.username for vote in obj.votes.filter(status=-1)]
+        request = self.context.get('request')
+        return [
+            {
+                'user': vote.user.username,
+                'user_url': reverse('accounts:get-user', kwargs={'pk': vote.user.id}, request=request),    
+            }
+                 for vote in obj.votes.filter(status=-1)
+        ]
     
     def get_comments(self, obj):
+        request = self.context.get('request')
         return [
             {
                 'user': comment.user.username,
+                'user_url': reverse('accounts:get-user', kwargs={'pk': comment.user.id}, request=request),
                 'body': comment.body,
                 'created_at': comment.created_at,
-                'comment_url': reverse(self.c_url, kwargs={'pk': comment.id}, request=self.context.get('request'))
+                'comment_url': reverse(self.comm_url, kwargs={'pk': comment.id}, request=request)
             }
             for comment in obj.comments.all().order_by('-created_at')
         ]

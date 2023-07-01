@@ -1,20 +1,26 @@
 from rest_framework import serializers
 from posts.models import *
 from .mixins import PostSerializerMixin
+from rest_framework.reverse import reverse
 
 class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="posts:review-detail", lookup_field="pk")
     vote_url = serializers.HyperlinkedIdentityField(view_name="posts:review-vote", lookup_field="pk")
-    comments_url = serializers.HyperlinkedIdentityField(view_name="posts:review-comment", lookup_field="pk")
+    new_comment_url = serializers.HyperlinkedIdentityField(view_name="posts:review-comment", lookup_field="pk")
     project_info = serializers.SerializerMethodField()
-    c_url = "posts:review-comment-vote"
+    comm_url = "posts:review-comment-vote"
 
     def get_project_info(self, obj):
-        return {'title': obj.project.title, 'artist': obj.project.artist.name}
+        request = self.context.get('request')
+        return {
+            'title': obj.project.title,
+            'artist': obj.project.artist.name,
+            'url': reverse('projects:project-detail', kwargs={'pk': obj.project.id}, request=request),
+            }
 
     class Meta:
         model = Review
-        fields = '__all__'
+        exclude = ['project']
 
 class ReviewVoteSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -44,16 +50,24 @@ class ReviewCommentVoteSerializer(serializers.ModelSerializer):
 class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="posts:list-detail", lookup_field="pk")
     vote_url = serializers.HyperlinkedIdentityField(view_name="posts:list-vote", lookup_field="pk")
-    comments_url = serializers.HyperlinkedIdentityField(view_name="posts:list-comment", lookup_field="pk")
+    new_comment_url = serializers.HyperlinkedIdentityField(view_name="posts:list-comment", lookup_field="pk")
     projects_info = serializers.SerializerMethodField()
-    c_url = "posts:list-comment-vote"
+    comm_url = "posts:list-comment-vote"
 
     def get_projects_info(self, obj):
-        return [{'title': project.title, 'artist': project.artist.name} for project in obj.projects.all()]
+        request = self.context.get('request')
+        return [
+            {
+                'title': project.title, 
+                'artist': project.artist.name,
+                'url': reverse('projects:project-detail', kwargs={'pk': project.id}, request=request),
+            } 
+            for project in obj.projects.all()
+        ]
 
     class Meta:
         model = MusicList
-        fields = '__all__'
+        exclude = ['projects']
 
 class ListVoteSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
