@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from posts.models import *
+from rest_framework.reverse import reverse
 
 class PostSerializerMixin(serializers.Serializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -19,7 +20,8 @@ class PostSerializerMixin(serializers.Serializer):
             {
                 'user': comment.user.username,
                 'body': comment.body,
-                'created_at': comment.created_at
+                'created_at': comment.created_at,
+                'comment_url': reverse(self.c_url, kwargs={'pk': comment.id}, request=self.context.get('request'))
             }
             for comment in obj.comments.all().order_by('-created_at')
         ]

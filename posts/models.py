@@ -70,7 +70,6 @@ class ReviewCommentVote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comment_votes')
     review_comment = models.ForeignKey(ReviewComment, on_delete=models.CASCADE, related_name='comment_votes')
     status = models.IntegerField(default=0, validators=[validate_like_dislike])
-    is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -78,13 +77,13 @@ class ReviewCommentVote(models.Model):
 
     def __str__(self):
         if self.status == 0:
-            return f"{self.user.username} removed vote on review '{self.review_comment.body}'"
+            return f"{self.user.username} removed vote on comment '{self.review_comment.body}'"
         
         if self.status == 1:
-            return f"{self.user.username} likes review '{self.review_comment.body}'"
+            return f"{self.user.username} likes comment '{self.review_comment.body}'"
         
         if self.status == -1:
-            return f"{self.user.username} dislikes review '{self.review_comment.body}'"
+            return f"{self.user.username} dislikes comment '{self.review_comment.body}'"
 
 
 class MusicList(models.Model):
@@ -137,7 +136,6 @@ class ListCommentVote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='list_comment_votes')
     list_comment = models.ForeignKey(ListComment, on_delete=models.CASCADE, related_name='comment_votes')
     status = models.IntegerField(default=0, validators=[validate_like_dislike])
-    is_fav = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -151,4 +149,4 @@ class ListCommentVote(models.Model):
             return f"{self.user.username} likes comment '{self.list_comment.body}'"
         
         if self.status == -1:
-            return f"{self.user.username} dislikes on comment '{self.list_comment.body}'"
+            return f"{self.user.username} dislikes comment '{self.list_comment.body}'"

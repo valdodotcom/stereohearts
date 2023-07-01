@@ -48,7 +48,13 @@ class ReviewCommentView(PostCommentMixin, CreateAPIView):
     def perform_create(self, serializer):
         super().perform_create(serializer, 'review', Review)
 
+class ReviewCommentVoteView(PostVoteMixin, CreateAPIView):
+    serializer_class = ReviewCommentVoteSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    model = ReviewCommentVote
 
+    def perform_create(self, serializer):
+        super().perform_create(serializer, 'review_comment_id')
 
 class ListView(PostViewMixin, ListCreateAPIView):
     serializer_class = ListSerializer
@@ -75,3 +81,11 @@ class ListCommentView(PostCommentMixin, CreateAPIView):
     
     def perform_create(self, serializer):
         super().perform_create(serializer, 'music_list', MusicList)
+
+class ListCommentVoteView(PostVoteMixin, CreateAPIView):
+    serializer_class = ListCommentVoteSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    model = ListCommentVote
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer, 'list_comment_id')
