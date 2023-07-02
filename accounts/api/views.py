@@ -140,6 +140,10 @@ class FollowView(viewsets.ViewSet):
         else:
             # Prevent user from following themselves
             if own_profile != following_profile:
+                if following_profile in own_profile.blocked_by.all():
+                    return Response({'message': 'You cannot follow a user who has blocked you'}, status=status.HTTP_400_BAD_REQUEST)
+                if following_profile in own_profile.blocked_users.all():
+                    return Response({'message': 'You cannot follow a blocked user'}, status=status.HTTP_400_BAD_REQUEST)
                 own_profile.following.add(following_profile)
                 return Response({'message': 'Followed'}, status=status.HTTP_200_OK)
             else:
@@ -153,12 +157,12 @@ class BlockView(viewsets.ViewSet):
         own_profile = User.objects.get(username=request.user)
         blocked_profile = User.objects.get(id=pk)
 
-        # Check if already following
+        # Check if already blocked
         if blocked_profile in own_profile.blocked_users.all():
             own_profile.blocked_users.remove(blocked_profile)
             return Response({'message': 'Unblocked'}, status=status.HTTP_200_OK)
         else:
-            # Prevent user from following themselves
+            # Prevent user from blocking themselves
             if own_profile != blocked_profile:
                 own_profile.blocked_users.add(blocked_profile)
                 own_profile.following.remove(blocked_profile)
