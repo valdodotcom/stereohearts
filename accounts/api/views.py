@@ -144,3 +144,25 @@ class FollowView(viewsets.ViewSet):
                 return Response({'message': 'Followed'}, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'You cannot follow yourself'}, status=status.HTTP_400_BAD_REQUEST)
+            
+
+class BlockView(viewsets.ViewSet):
+    queryset = User.objects
+
+    def block(self, request, pk):
+        own_profile = User.objects.get(username=request.user)
+        blocked_profile = User.objects.get(id=pk)
+
+        # Check if already following
+        if blocked_profile in own_profile.blocked_users.all():
+            own_profile.blocked_users.remove(blocked_profile)
+            return Response({'message': 'Unblocked'}, status=status.HTTP_200_OK)
+        else:
+            # Prevent user from following themselves
+            if own_profile != blocked_profile:
+                own_profile.blocked_users.add(blocked_profile)
+                own_profile.following.remove(blocked_profile)
+                own_profile.followers.remove(blocked_profile)
+                return Response({'message': 'Blocked'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'You cannot block yourself'}, status=status.HTTP_400_BAD_REQUEST)

@@ -11,6 +11,8 @@ class UserSerializer(ModelSerializer):
     follow_url = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
+    blocked_users = serializers.SerializerMethodField()
+    blocked_by = serializers.SerializerMethodField()
 
     def get_reviews(self, obj):
         reviews = obj.reviews.prefetch_related('project')
@@ -50,6 +52,14 @@ class UserSerializer(ModelSerializer):
     def get_follow_url(self, obj):
         request = self.context.get('request')
         return reverse('accounts:follow', args=[obj.pk], request=request)
+    
+    def get_blocked_users(self, obj):
+        blocked_users = obj.blocked_users.all()
+        return [user.username for user in blocked_users]
+    
+    def get_blocked_by(self, obj):
+        blocked_by = obj.blocked_by.all()
+        return [user.username for user in blocked_by]
 
 
     def validate(self, attrs):
@@ -66,6 +76,7 @@ class UserSerializer(ModelSerializer):
         fields = ['username', 'email', 'password',
                   'display_name', 'bio', 'reviews', 'music_lists',
                   'activity', 'following', 'followers', 'follow_url',
+                  'blocked_users', 'blocked_by',
                   ]
         extra_kwargs = {
             'password': {'write_only': True},

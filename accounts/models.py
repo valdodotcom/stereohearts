@@ -11,6 +11,7 @@ class User(AbstractUser):
   display_name = models.CharField(max_length=200, null=True)
   bio = models.TextField(blank=True, null=True)
   following = models.ManyToManyField("self", blank=True, related_name="followers", symmetrical=False)
+  blocked_users = models.ManyToManyField("self", blank=True, related_name="blocked_by", symmetrical=False)
   # profile_picture = models.ImageField(upload_to='reviewer_profiles/', blank=True)
   # favorite_projects = models.ManyToManyField('Project', related_name='users')
   # favorite_artists = models.ManyToManyField('Artist', related_name='users')
