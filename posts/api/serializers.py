@@ -20,7 +20,9 @@ class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        exclude = ['project']
+        fields = '__all__'
+
+        # exclude = ['project']
 
 class ReviewVoteSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -67,7 +69,8 @@ class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = MusicList
-        exclude = ['projects']
+        fields = '__all__'
+        # exclude = ['projects']
 
 class ListVoteSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
