@@ -124,7 +124,7 @@ class SpotifyLibraryView(ListAPIView):
                     for artist in artists:
                         parsed_artist = {
                             'external_urls': artist.get('external_urls'),
-                            'artist_name': artist.get('name'),
+                            'name': artist.get('name'),
                         }
                         parsed_artists.append(parsed_artist)
 
@@ -135,10 +135,11 @@ class SpotifyLibraryView(ListAPIView):
 
                     parsed_album = {
                         'added_at': album.get('added_at'),
+                        'id': album.get('album', {}).get('id'),
                         'album_type': album.get('album', {}).get('album_type'),
                         'artists': parsed_artists,
                         'external_urls': album.get('album', {}).get('external_urls'),
-                        'album_name': album.get('album', {}).get('name'),
+                        'name': album.get('album', {}).get('name'),
                         'release_date': album.get('album', {}).get('release_date'),
                         'total_tracks': album.get('album', {}).get('total_tracks'),
                         'tracks': track_names,
