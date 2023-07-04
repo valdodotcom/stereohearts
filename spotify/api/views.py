@@ -8,8 +8,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from requests import Request, post
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 
 from spotify.util import update_or_create_user_tokens, is_spotify_authenticated, get_user_tokens
+from spotify.api.serializers import *
 import requests
 
 load_dotenv()
@@ -57,7 +59,6 @@ def getCallback(request):
     }
 
     response = post(endpoint, data=callback_data).json()
-    print(response)
 
     access_token = response.get('access_token')
     token_type = response.get('token_type')
@@ -76,15 +77,23 @@ def getCallback(request):
     return redirect('spotify:library')
 
 @api_view(['GET'])
-def getIsAuthenticated(request):
-    is_authenticated = is_spotify_authenticated(request.session.session_key)
+def getIsAuthenticated(self, request):
+    is_authenticated = is_spotify_authenticated(self.request.user, request.session.session_key)
     return Response({'status': is_authenticated}, status=status.HTTP_200_OK)
 
 
+class SpotifyLibraryPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class SpotifyLibraryView(ListAPIView):
+    pagination_class = SpotifyLibraryPagination
+    serializer_class = ParsedAlbumSerializer
+    
     def get_queryset(self):
         session_key = self.request.session.session_key
-        is_authenticated = is_spotify_authenticated(session_key)
+        is_authenticated = is_spotify_authenticated(self.request.user, session_key)
 
         if is_authenticated:
             user_tokens = get_user_tokens(session_key)
@@ -96,15 +105,47 @@ class SpotifyLibraryView(ListAPIView):
             }
 
             # Fetch the library data using Spotify's API
-            library_endpoint = 'https://api.spotify.com/v1/me/tracks'
-            response = requests.get(library_endpoint, headers=headers)
+            params = {'limit': 50, 'offset': 0}
+            library_endpoint = 'https://api.spotify.com/v1/me/albums'
+
+            response = requests.get(library_endpoint, headers=headers, params=params)
             if response.status_code == 200:
                 library_data = response.json()
-                tracks = library_data.get('items')
-                return tracks
+                albums = library_data.get('items')
+                parsed_albums = []
+
+                for album in albums:
+                    artists = album.get('album', {}).get('artists', [])
+                    parsed_artists = []
+                    for artist in artists:
+                        parsed_artist = {
+                            'external_urls': artist.get('external_urls'),
+                            'artist_name': artist.get('name'),
+                        }
+                        parsed_artists.append(parsed_artist)
+
+                    parsed_album = {
+                        'added_at': album.get('added_at'),
+                        'album_type': album.get('album', {}).get('album_type'),
+                        'artists': parsed_artists,
+                        'external_urls': album.get('album', {}).get('external_urls'),
+                        'album_name': album.get('album', {}).get('name'),
+                        'release_date': album.get('album', {}).get('release_date'),
+                        'total_tracks': album.get('album', {}).get('total_tracks'),
+                    }
+                    parsed_albums.append(parsed_album)
+
+                return parsed_albums
 
         return []
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        return Response(queryset, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -62,7 +62,7 @@ def refresh_spotify_token(user, session_id):
         'refresh_token': refresh_token,
         }
 
-    response = requests.post('https://accounts.spotify.com/api/token', data=data, headers=headers)
+    response = requests.post(SPOTIFY_URL+'api/token', data=data, headers=headers)
     if(response.status_code == 200):
         response_json = response.json()
         access_token = response_json["access_token"]
