@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 class ArtistSerializer(serializers.Serializer):
-    external_urls = serializers.DictField()
+    id = serializers.CharField()
     name = serializers.CharField()
 
 class ParsedAlbumSerializer(serializers.Serializer):
