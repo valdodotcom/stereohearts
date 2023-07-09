@@ -23,11 +23,11 @@ def validate_like_dislike(value):
     
 
 class Review(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='reviews')
+    project = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.IntegerField(validators=[validate_rating])
+    rating = models.IntegerField(validators=[validate_rating], null=True)
     title = models.CharField(max_length=100, null=True)
-    body = models.TextField()
+    body = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     like_dislike = models.IntegerField(default=0, validators=[validate_like_dislike])
 
@@ -88,7 +88,7 @@ class ReviewCommentVote(models.Model):
 
 class MusicList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='music_lists')
-    projects = models.ManyToManyField(Project, related_name='music_lists')
+    projects = models.CharField(max_length=100)  # Storing project IDs as a comma-separated string
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -98,10 +98,10 @@ class MusicList(models.Model):
         return f"{self.user.username} - {self.title}"
     
     def get_projects_list(self):
-        return list(self.projects.all())
+        return self.projects.split(',')
     
     def get_projects_str(self):
-        projects = self.projects.all()
+        projects = self.projects.split(',')
         return [str(project) for project in projects]
 
 

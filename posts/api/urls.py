@@ -6,7 +6,8 @@ app_name = 'posts'
 urlpatterns = [
     path('', getRoutes, name=''),
 
-    path('reviews/', ReviewView.as_view()),
+    path('reviews/', ReviewView.as_view(), name="reviews"),
+    path('create-review/', CreateReview.as_view(), name="create-review"),
     path('reviews/<int:pk>/', ReviewDetailView.as_view(), name="review-detail"),
     path('reviews/<int:pk>/vote', ReviewVoteView.as_view(), name="review-vote"),
     path('reviews/<int:pk>/new-comment', ReviewCommentView.as_view(), name="review-comment"),

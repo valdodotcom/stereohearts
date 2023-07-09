@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
+from urllib.parse import urlencode
 
 class ArtistSerializer(serializers.Serializer):
-    external_urls = serializers.DictField()
+    id = serializers.CharField()
     name = serializers.CharField()
 
 class ParsedAlbumSerializer(serializers.Serializer):
@@ -14,3 +16,16 @@ class ParsedAlbumSerializer(serializers.Serializer):
     release_date = serializers.DateField()
     total_tracks = serializers.IntegerField()
     tracks = serializers.ListField()
+    create_review = serializers.SerializerMethodField()
+
+    def get_create_review(self, obj):
+        request = self.context.get('request')
+        if request is not None and request.user.is_authenticated:
+            # Construct the URL for creating a review
+            url = reverse('posts:create-review')
+            params = {
+                'project': obj['id'],
+            }
+            return f"{request.build_absolute_uri(url)}?{urlencode(params)}"
+
+        return None

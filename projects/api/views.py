@@ -25,7 +25,7 @@ class ProjectView(ListCreateAPIView):
 
     def get_queryset(self):
         artist = self.request.query_params.get('artist', None)
-        queryset = Project.objects.all().order_by('-created_at')
+        queryset = Project.objects.all()
 
         if artist:
             queryset = queryset.filter(artist__name=artist)

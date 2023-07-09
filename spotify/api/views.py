@@ -123,7 +123,7 @@ class SpotifyLibraryView(ListAPIView):
 
                     for artist in artists:
                         parsed_artist = {
-                            'external_urls': artist.get('external_urls'),
+                            'id': artist.get('id'),
                             'name': artist.get('name'),
                         }
                         parsed_artists.append(parsed_artist)

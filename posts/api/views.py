@@ -5,7 +5,12 @@ from .serializers import *
 from .permissions import IsPostOwnerOrReadOnly
 from .mixins import PostViewMixin, PostVoteMixin, PostCommentMixin
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from projects.api.serializers import ProjectSerializer, ArtistSerializer
+from projects.models import Artist
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework import status
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -89,3 +94,15 @@ class ListCommentVoteView(PostVoteMixin, CreateAPIView):
 
     def perform_create(self, serializer):
         super().perform_create(serializer, 'list_comment_id')
+
+
+class CreateReview(CreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Review.objects.all()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        project = self.request.data.get('project')  # Get project from request data
+        serializer.save(user=user, project=project)
+        return super().perform_create(serializer)
