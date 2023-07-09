@@ -6,8 +6,6 @@ from .permissions import IsPostOwnerOrReadOnly
 from .mixins import PostViewMixin, PostVoteMixin, PostCommentMixin
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from projects.api.serializers import ProjectSerializer, ArtistSerializer
-from projects.models import Artist
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import status

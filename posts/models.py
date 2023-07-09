@@ -2,7 +2,6 @@ from django.db import models
 
 # Create your models here.
 from accounts.models import User
-from projects.models import Project
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
