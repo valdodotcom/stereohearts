@@ -14,6 +14,7 @@ urlpatterns = [
     path('reviews/comment/<int:pk>', ReviewCommentVoteView.as_view(), name="review-comment-vote"),
 
     path('lists/', ListView.as_view()),
+    path('add-to-list/', MusicListViewSet.as_view({'post': 'create'}), name="add-to-list"),
     path('lists/<int:pk>/', ListDetailView.as_view(), name="list-detail"),
     path('lists/<int:pk>/vote', ListVoteView.as_view(), name="list-vote"),
     path('lists/<int:pk>/new-comment', ListCommentView.as_view(), name="list-comment"),

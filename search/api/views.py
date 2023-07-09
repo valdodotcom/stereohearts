@@ -57,5 +57,5 @@ class SearchAllView(generics.GenericAPIView):
         if not query:
             return Response('', status=400)     
         results = client.get_multiple_queries(query)
-        print(results)
+        # print(results)
         return Response(results)

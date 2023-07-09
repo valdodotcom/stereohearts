@@ -17,12 +17,24 @@ class ParsedAlbumSerializer(serializers.Serializer):
     total_tracks = serializers.IntegerField()
     tracks = serializers.ListField()
     create_review = serializers.SerializerMethodField()
+    add_to_list = serializers.SerializerMethodField()
 
     def get_create_review(self, obj):
         request = self.context.get('request')
         if request is not None and request.user.is_authenticated:
             # Construct the URL for creating a review
             url = reverse('posts:create-review')
+            params = {
+                'project': obj['id'],
+            }
+            return f"{request.build_absolute_uri(url)}?{urlencode(params)}"
+
+        return None
+    
+    def get_add_to_list(self, obj):
+        request = self.context.get('request')
+        if request is not None and request.user.is_authenticated:
+            url = reverse('posts:add-to-list')
             params = {
                 'project': obj['id'],
             }
