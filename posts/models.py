@@ -22,7 +22,7 @@ def validate_like_dislike(value):
     
 
 class Review(models.Model):
-    project = models.CharField(max_length=100)
+    project = models.CharField(max_length=100, default='item1')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField(validators=[validate_rating], null=True)
     title = models.CharField(max_length=100, null=True)
@@ -87,7 +87,7 @@ class ReviewCommentVote(models.Model):
 
 class MusicList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='music_lists')
-    projects = models.CharField(max_length=100)  # Storing project IDs as a comma-separated string
+    projects = models.CharField(max_length=100, default="item1,item2")  # Storing project IDs as a comma-separated string
     title = models.CharField(max_length=100, null=True)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
