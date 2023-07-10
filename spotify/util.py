@@ -16,7 +16,7 @@ CLIENT_ID = environ.get('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = environ.get('SPOTIFY_CLIENT_SECRET')
 
 def get_user_tokens(session_id):
-    user_tokens = SpotifyToken.objects.filter(spotify_user=session_id)
+    user_tokens = SpotifyToken.objects.filter(session_id=session_id)
     if user_tokens.exists():
         return user_tokens[0]
 
@@ -34,7 +34,7 @@ def update_or_create_user_tokens(user, session_id, access_token,
                                    'token_type', 'expires_in'])
 
     else:
-        tokens = SpotifyToken(user=user, spotify_user=session_id, access_token=access_token, 
+        tokens = SpotifyToken(user=user, session_id=session_id, access_token=access_token, 
                               refresh_token=refresh_token, token_type=token_type, 
                               expires_in=expires_in)
         tokens.save()
