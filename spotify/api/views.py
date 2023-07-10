@@ -143,6 +143,7 @@ class SpotifyLibraryView(ListAPIView):
                         'release_date': album.get('album', {}).get('release_date'),
                         'total_tracks': album.get('album', {}).get('total_tracks'),
                         'tracks': track_names,
+                        'image': album.get('album', {}).get('images')[1].get('url'),
                     }
                     parsed_albums.append(parsed_album)
 

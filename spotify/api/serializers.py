@@ -18,6 +18,7 @@ class ParsedAlbumSerializer(serializers.Serializer):
     tracks = serializers.ListField()
     create_review = serializers.SerializerMethodField()
     add_to_list = serializers.SerializerMethodField()
+    image = serializers.CharField()
 
     def get_create_review(self, obj):
         request = self.context.get('request')
