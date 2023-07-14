@@ -5,7 +5,9 @@ from .serializers import *
 from .permissions import IsPostOwnerOrReadOnly
 from .mixins import PostViewMixin, PostVoteMixin, PostCommentMixin
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -89,3 +91,62 @@ class ListCommentVoteView(PostVoteMixin, CreateAPIView):
 
     def perform_create(self, serializer):
         super().perform_create(serializer, 'list_comment_id')
+
+
+class CreateReview(CreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Review.objects.all()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        project = self.request.data.get('project')  # Get project from request data
+        serializer.save(user=user, project=project)
+        return super().perform_create(serializer)
+    
+
+class MusicListViewSet(ModelViewSet):
+    serializer_class = ListSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = MusicList.objects.all()
+
+    def user_has_list(self, list_id):
+        user_lists = MusicList.objects.filter(user=self.request.user)
+        return user_lists.filter(id=list_id).exists()
+
+    def create(self, request, *args, **kwargs):
+        list_id = request.data.get('list_id')
+        project = request.data.get('project')
+        title = request.data.get('title')
+        body = request.data.get('body')
+        new_list = None
+
+        if self.user_has_list(list_id):
+            existing_list = MusicList.objects.get(id=list_id)
+            existing_list.user = self.request.user
+            projects_list = existing_list.projects.split(',')
+
+            if project is not None:  # Check if 'project' field is not null
+                existing_list.projects = project
+
+            if title is not None:  # Check if 'title' field is not null
+                existing_list.title = title
+
+            if body is not None:  # Check if 'body' field is not null
+                existing_list.body = body
+
+            if project not in projects_list:  # Check if the project ID is already in the list
+                projects_list.append(project)
+                existing_list.projects = ','.join(projects_list)
+                existing_list.save()
+            else:
+                return Response({"error": "item already in list"})
+        else:
+            new_list = MusicList.objects.create(user=self.request.user, 
+                                                projects=project, title=title, body=body,
+                                                )
+
+            serializer = self.get_serializer(new_list)
+            return Response(serializer.data, status=201)
+        serializer = self.get_serializer(existing_list)
+        return Response(serializer.data, status=201)

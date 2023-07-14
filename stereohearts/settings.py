@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'spotify.apps.SpotifyConfig',
     'frontend.apps.FrontendConfig',
-    'projects.apps.ProjectsConfig',
     'search.apps.SearchConfig',
 
     'rest_framework',

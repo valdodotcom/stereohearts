@@ -15,18 +15,16 @@ class UserSerializer(ModelSerializer):
     blocked_by = serializers.SerializerMethodField()
 
     def get_reviews(self, obj):
-        reviews = obj.reviews.prefetch_related('project')
+        reviews = obj.reviews.all().order_by('-created_at')
         request = self.context.get('request')
         return [{'title': str(review.title), 
-                 'project': str(review.project), 
                  'url': reverse('posts:review-detail', 
                                 args=[review.pk], request=request)} for review in reviews]
     
     def get_music_lists(self, obj):
-        music_lists = obj.music_lists.prefetch_related('projects')
+        music_lists = obj.music_lists.all().order_by('-created_at')
         request = self.context.get('request')
         return [{'title': str(music_list.title), 
-                 'projects': music_list.get_projects_str(), 
                  'url': reverse('posts:list-detail', 
                                 args=[music_list.pk], request=request)} for music_list in music_lists]
     
@@ -74,7 +72,8 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'password',
-                  'display_name', 'bio', 'reviews', 'music_lists',
+                  'display_name', 'bio', 'reviews', 
+                  'music_lists',
                   'activity', 'following', 'followers', 'follow_url',
                   'blocked_users', 'blocked_by',
                   ]
