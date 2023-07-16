@@ -9,6 +9,13 @@ from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView,
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 
+from os import environ
+from dotenv import load_dotenv
+
+load_dotenv()
+FRONTEND_URL = environ.get('FRONTEND_URL')
+
+
 @api_view(['GET'])
 def getRoutes(request):
     routes = [
@@ -96,26 +103,24 @@ def loginUser(request):
         try:
             user = User.objects.get(email=username_or_email)
         except User.DoesNotExist:
-            return Response({'error': 'Invalid username or email'}, status=400)
+            return Response({'error': 'Invalid username or email.'}, status=400)
 
     # If not found by email, check if it's a username
     if user is None:
         try:
             user = User.objects.get(username=username_or_email)
         except User.DoesNotExist:
-            return Response({'error': 'Invalid username or email'}, status=400)
+            return Response({'error': 'Invalid username or email.'}, status=400)
 
     user = authenticate(request, username=user.username, password=password)
 
     if user is not None:
         login(request, user)
-        return Response({'detail': 'Logged in successfully!'}, status=status.HTTP_200_OK)
-        # response_data = {
-        #     'detail': 'Logged in successfully!',
-        #     'redirect_url': '/home/'  # Replace with the desired redirect URL
-        # }
-
-        # return JsonResponse(response_data, status=200)
+        response_data = {
+            'success': 'Logged in successfully!',
+            # 'redirect_url': f'{FRONTEND_URL}/'
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
     else:
         return Response({'error': 'Invalid username or password'}, status=400)
 
