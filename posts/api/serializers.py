@@ -1,10 +1,9 @@
 from rest_framework import serializers
+from helpers.auth_helpers import get_session_key
 from posts.models import *
 from .mixins import PostSerializerMixin
-from rest_framework.reverse import reverse
 import requests
 from spotify.util import is_spotify_authenticated, get_user_tokens
-
 
 class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="posts:review-detail", lookup_field="pk")
@@ -18,7 +17,7 @@ class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
         album = obj.project
 
         # Make a request to the Spotify API
-        session_key = self.context['request'].session.session_key
+        session_key = get_session_key(self.context['request'])
         is_authenticated = is_spotify_authenticated(self.context['request'].user, session_key)
 
         if is_authenticated:
@@ -52,7 +51,8 @@ class ReviewSerializer(PostSerializerMixin, serializers.ModelSerializer):
                     'name': data.get('name'),
                     'release_date': data.get('release_date'),
                     'total_tracks': data.get('total_tracks'),
-                    'tracks': [track['name'] for track in data.get('tracks', {}).get('items')]
+                    'tracks': [track['name'] for track in data.get('tracks', {}).get('items')],
+                    'image': data.get('images')[1].get('url')
                 }
 
                 return album_info
@@ -106,7 +106,7 @@ class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
         projects = obj.get_projects_list()
         projects_info = []
 
-        session_key = self.context['request'].session.session_key
+        session_key = get_session_key(self.context['request'])
         is_authenticated = is_spotify_authenticated(self.context['request'].user, session_key)
 
         if is_authenticated:
@@ -141,7 +141,9 @@ class ListSerializer(PostSerializerMixin, serializers.ModelSerializer):
                         'name': data.get('name'),
                         'release_date': data.get('release_date'),
                         'total_tracks': data.get('total_tracks'),
-                        'tracks': [track['name'] for track in data.get('tracks', {}).get('items')]
+                        'tracks': [track['name'] for track in data.get('tracks', {}).get('items')],
+                        'image': data.get('images')[1].get('url')
+
                     }
 
                     projects_info.append(album_info)

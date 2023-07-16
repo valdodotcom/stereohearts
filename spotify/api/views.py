@@ -13,12 +13,15 @@ from rest_framework.pagination import PageNumberPagination
 from spotify.util import update_or_create_user_tokens, is_spotify_authenticated, get_user_tokens
 from spotify.api.serializers import *
 import requests
+from rest_framework.authentication import TokenAuthentication
+from helpers.auth_helpers import get_session_key
 
 load_dotenv()
 SPOTIFY_URL = environ.get('SPOTIFY_URL')
 REDIRECT_URI = environ.get('SPOTIFY_REDIRECT_URI')
 CLIENT_ID = environ.get('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = environ.get('SPOTIFY_CLIENT_SECRET')
+FRONTEND_URL = environ.get('FRONTEND_URL')
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -66,15 +69,20 @@ def getCallback(request):
     expires_in = response.get('expires_in')
     error = response.get('error')
 
-    if not request.session.exists(request.session.session_key):
-        request.session.create()
+    # if not request.session.exists(request.session.session_key):
+    #     request.session.create()
+    token = TokenAuthentication().authenticate(request)
+    user = token[0] if token else None
 
+    # update_or_create_user_tokens(request.user,
+    #     request.session.session_key, access_token, refresh_token,
+    #     token_type, expires_in)
     update_or_create_user_tokens(request.user,
-        request.session.session_key, access_token, refresh_token,
-        token_type, expires_in)
+                                     request.user.auth_token.key, access_token, refresh_token,
+                                     token_type, expires_in)
 
-    # TODO: Change redirect to frontend home:
-    return redirect('spotify:library')
+        # TODO: Change redirect to frontend home:
+    return redirect(FRONTEND_URL)
 
 @api_view(['GET'])
 def getIsAuthenticated(self, request):
@@ -92,7 +100,16 @@ class SpotifyLibraryView(ListAPIView):
     serializer_class = ParsedAlbumSerializer
     
     def get_queryset(self):
-        session_key = self.request.session.session_key
+        # session_key = self.request.session.session_key
+
+        # try:
+        #     token = authorization_header.split(' ')[1]
+        #     if  Session.objects.get(session_key=token):
+        #         session_key = token
+        # except IndexError:
+        #     pass
+
+        session_key = get_session_key(self.request)
         is_authenticated = is_spotify_authenticated(self.request.user, session_key)
 
         if is_authenticated:
