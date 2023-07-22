@@ -36,10 +36,17 @@ class ListUsersView(ListAPIView):
 
     def get_queryset(self):
         username = self.request.query_params.get('username', None)
+        following = self.request.query_params.get('following', None)
+
         queryset = User.objects.all().order_by('-date_joined')
 
         if username:
             queryset = queryset.filter(username=username)
+
+        if following == 'yes':
+            user = self.request.user
+            queryset = user.following.all()
+
         return queryset
 
 

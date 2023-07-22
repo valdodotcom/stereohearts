@@ -55,10 +55,16 @@ class PostSerializerMixin(serializers.Serializer):
 class PostViewMixin:
     def get_queryset(self):
         username = self.request.query_params.get('username', None)
+        following = self.request.query_params.get('following', None)
         queryset = self.model.objects.all().order_by('-created_at')
 
         if username:
             queryset = queryset.filter(user__username=username)
+
+        if following == 'yes':
+            user = self.request.user
+            queryset = queryset.filter(user__in=user.following.all())
+
         return queryset
 
     def perform_create(self, serializer):
