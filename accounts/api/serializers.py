@@ -37,7 +37,24 @@ class UserSerializer(ModelSerializer):
         combined_votes = list_votes + review_votes + review_comments + list_comments
         # filtered_votes = [str(vote) for vote in combined_votes if vote.status != 0]
         filtered_votes = [str(vote) for vote in combined_votes]
-        return filtered_votes[:5]
+
+        request = self.context.get('request')
+        activity_data = []
+
+        for vote in combined_votes:
+            activity_item = {
+                'action': str(vote),
+            }
+            # Check if the vote is related to a review
+            if hasattr(vote, 'review') and vote.review:
+                activity_item['url'] = reverse('posts:review-detail', args=[vote.review.pk], request=request)
+            # Check if the vote is related to a music list
+            elif hasattr(vote, 'music_list') and vote.music_list:
+                activity_item['url'] = reverse('posts:list-detail', args=[vote.music_list.pk], request=request)
+
+            activity_data.append(activity_item)
+
+        return activity_data[:5]
     
     def get_following(self, obj):
         following = obj.following.all()
