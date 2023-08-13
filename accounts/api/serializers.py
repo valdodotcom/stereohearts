@@ -17,14 +17,16 @@ class UserSerializer(ModelSerializer):
     def get_reviews(self, obj):
         reviews = obj.reviews.all().order_by('-created_at')
         request = self.context.get('request')
-        return [{'title': str(review.title), 
+        return [{'id': review.pk,
+                 'title': str(review.title), 
                  'url': reverse('posts:review-detail', 
                                 args=[review.pk], request=request)} for review in reviews]
     
     def get_music_lists(self, obj):
         music_lists = obj.music_lists.all().order_by('-created_at')
         request = self.context.get('request')
-        return [{'title': str(music_list.title), 
+        return [{'id': music_list.pk,
+                 'title': str(music_list.title), 
                  'url': reverse('posts:list-detail', 
                                 args=[music_list.pk], request=request)} for music_list in music_lists]
     
@@ -47,9 +49,13 @@ class UserSerializer(ModelSerializer):
             }
             # Check if the vote is related to a review
             if hasattr(vote, 'review') and vote.review:
+                activity_item['id'] = vote.review.pk
+                activity_item['type'] = "review"
                 activity_item['url'] = reverse('posts:review-detail', args=[vote.review.pk], request=request)
             # Check if the vote is related to a music list
             elif hasattr(vote, 'music_list') and vote.music_list:
+                activity_item['id'] = vote.music_list.pk
+                activity_item['type'] = "list"
                 activity_item['url'] = reverse('posts:list-detail', args=[vote.music_list.pk], request=request)
 
             activity_data.append(activity_item)
